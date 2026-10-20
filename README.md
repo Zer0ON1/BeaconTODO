@@ -116,7 +116,7 @@ BeaconTODO/
 
 ### 直接使用
 
-前往 [Releases](../../releases) 下载对应平台的安装包：
+前往 [Releases](https://github.com/Zer0ON1/BeaconTODO/releases) 下载对应平台的安装包：
 
 - **Windows**：`BeaconTODO_x.y.z_x64-setup.exe`（NSIS 安装包）或便携版 `beacon-todo.exe`
 - **macOS**：`.dmg`（由 CI 构建验证）
