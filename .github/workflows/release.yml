@@ -1,0 +1,106 @@
+name: Release
+
+# Builds the app on a version tag (or on an existing published release) and
+# attaches the installers to that GitHub Release.
+on:
+  push:
+    tags: ["v*"]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach assets to (e.g. v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+# A tag push and a published release can both fire for the same version —
+# queue them instead of running two upload jobs in parallel.
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and attach to release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # workflow_dispatch needs an explicit tag; tag push / release events
+          # already carry it in ref_name.
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: "BeaconTODO ${{ github.event.inputs.tag || github.ref_name }}"
+          releaseBody: |
+            ### 下载
+
+            | 类型 | 文件 | 说明 |
+            | --- | --- | --- |
+            | 安装版（推荐） | `BeaconTODO_*_x64-setup.exe` | 走安装向导，创建快捷方式，可在「应用和功能」中卸载 |
+            | 便携版 | `beacon-todo.exe` | 免安装，双击即用，不写注册表 |
+
+            **系统要求**：Windows 10 / 11（64 位），需要 WebView2 运行时（Windows 11 已内置）。
+
+            > 便携版只便携「程序」，数据固定存放在 `%APPDATA%\com.beacontodo.app\`。
+
+            ### 本版要点
+
+            - **节点化拆解**：一件事拆成有序节点，进度按节点自动计算，拖拽只调整顺序、不改动其他属性
+            - **里程碑 = 节点开关**：任意节点行内拨一下就是里程碑，卡片上显示 `◆ 已完成/总数`
+            - **桌面置顶小窗**：无边框常驻、位置记忆、不重复开窗，窗内可直接新建/编辑并实时同步到主窗口
+
+            ### 已知限制
+
+            暂无到期提醒与重复任务、无云同步；macOS 产物未签名，首次打开需在「系统设置 → 隐私与安全性」中允许。
+
+            完整说明见 [docs/release-notes](https://github.com/${{ github.repository }}/blob/main/docs/release-notes-v0.1.0.md)。
+          releaseDraft: false
+          prerelease: false
+          args: --target ${{ matrix.target }}
+
+      # tauri-action only uploads bundles (NSIS/MSI), so the portable exe needs
+      # to be attached separately — the release notes promise both.
+      - name: Attach portable exe
+        if: matrix.platform == 'windows-latest'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          gh release upload "$TAG" \
+            "src-tauri/target/${{ matrix.target }}/release/beacon-todo.exe" \
+            --clobber
