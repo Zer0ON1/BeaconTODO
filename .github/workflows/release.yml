@@ -36,14 +36,14 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Build the commit the tag points at. Without this, workflow_dispatch
           # would check out the tip of the branch and ship code that doesn't
           # match the release tag.
           ref: ${{ github.event.inputs.tag || github.ref }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -95,17 +95,7 @@ jobs:
             完整说明见 [docs/release-notes](https://github.com/${{ github.repository }}/blob/main/docs/release-notes-v0.1.0.md)。
           releaseDraft: false
           prerelease: false
+          # Attaches target/<triple>/release/beacon-todo.exe alongside the
+          # installer — tauri-action only ships bundles by default.
+          uploadPlainBinary: true
           args: --target ${{ matrix.target }}
-
-      # tauri-action only uploads bundles (NSIS/MSI), so the portable exe needs
-      # to be attached separately — the release notes promise both.
-      - name: Attach portable exe
-        if: matrix.platform == 'windows-latest'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.inputs.tag || github.ref_name }}
-        run: |
-          gh release upload "$TAG" \
-            "src-tauri/target/${{ matrix.target }}/release/beacon-todo.exe" \
-            --clobber
