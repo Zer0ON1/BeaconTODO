@@ -37,6 +37,11 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Build the commit the tag points at. Without this, workflow_dispatch
+          # would check out the tip of the branch and ship code that doesn't
+          # match the release tag.
+          ref: ${{ github.event.inputs.tag || github.ref }}
 
       - uses: actions/setup-node@v4
         with:
