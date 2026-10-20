@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+src-tauri/target/
+src-tauri/gen/
+core/target/
+
+# Env & secrets
+.env
+.env.local
+*.key
+*.pem
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Database & backups (local data, never committed)
+*.db
+*.db-wal
+*.db-shm
+backups/
+
+# Project overview doc — 明确不上传 git
+项目速览.md
+
+# AI collaboration memory (local only)
+.workbuddy/

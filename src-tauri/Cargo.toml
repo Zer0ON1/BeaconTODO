@@ -1,0 +1,33 @@
+[package]
+name = "beacon-todo"
+version = "0.1.0"
+description = "BeaconTODO — local-first desktop todo manager"
+authors = ["刘昕阳"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "beacon_todo_lib"
+# Desktop-only: staticlib (iOS) and cdylib (Android) are unnecessary, and the
+# cdylib trips MinGW ld's 65535 export-ordinal limit (export-all-symbols).
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+beacon-core = { path = "../core" }
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-log = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

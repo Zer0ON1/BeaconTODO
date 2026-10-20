@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ 主题变量（v0.2 起，激活色随主题而非定死） ============ */
+/*
+ * Large surfaces use rgb(var(--*-rgb) / var(--window-alpha)) so the opacity
+ * slider only fades the window BACKGROUND — text, icons and borders stay fully
+ * opaque (readability first).
+ */
+:root {
+  --window-alpha: 1;
+  --accent: #378add;
+  --accent-hover: #2c6fb0;
+  --accent-soft: #e8f1fa;
+  --accent-text: #1d5f9e;
+  --bg-rgb: 241 245 249;
+  --surface-rgb: 255 255 255;
+  --surface-2-rgb: 248 250 252;
+  --titlebar-rgb: 248 250 252;
+  --bg: rgb(var(--bg-rgb) / var(--window-alpha));
+  --surface: rgb(var(--surface-rgb) / var(--window-alpha));
+  --surface-2: rgb(var(--surface-2-rgb) / var(--window-alpha));
+  --titlebar: rgb(var(--titlebar-rgb) / var(--window-alpha));
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --shadow: 0 1px 3px rgb(15 23 42 / 0.08), 0 1px 2px rgb(15 23 42 / 0.04);
+  --radius: 10px;
+}
+
+[data-theme="dark"] {
+  --accent: #5b9bd5;
+  --accent-hover: #7ab3e8;
+  --accent-soft: #1e3a52;
+  --accent-text: #9ec8ec;
+  --bg-rgb: 15 23 42;
+  --surface-rgb: 30 41 59;
+  --surface-2-rgb: 23 32 51;
+  --titlebar-rgb: 23 32 51;
+  --border: #334155;
+  --border-strong: #475569;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  background: transparent;
+}
+
+body {
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.pin-body {
+  background: transparent;
+  overflow: hidden;
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* ============ 动效（尊重系统减少动效设置） ============ */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.18s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.22s ease-out;
+}
+
+/* 滑块开关 */
+.toggle-track {
+  position: relative;
+  height: 16px;
+  width: 30px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background 0.18s ease;
+  flex-shrink: 0;
+}
+
+.toggle-track[data-on="true"] {
+  background: var(--accent);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  height: 12px;
+  width: 12px;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+.toggle-track[data-on="true"] .toggle-knob {
+  transform: translateX(14px);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in,
+  .animate-slide-up {
+    animation: none;
+  }
+  .toggle-track,
+  .toggle-knob {
+    transition: none;
+  }
+}
