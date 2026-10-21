@@ -25,6 +25,8 @@ export interface Todo {
   startDate: string | null;
   endDate: string | null;
   sortOrder: number;
+  /** Pinned todos sort above the rest in every view. */
+  pinned: boolean;
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;

@@ -299,3 +299,28 @@ fn delete_todo_detaches_from_pin_windows() {
     assert!(services::pin_windows::list(&state).unwrap().is_empty());
     let _ = group_id;
 }
+
+/// 置顶待办排在每个视图最前；取消置顶后恢复原顺序。
+#[test]
+fn pinned_todo_sorts_first() {
+    let state = setup();
+    let group = services::groups::create(&state, "分组".to_string(), None, None).unwrap();
+    let a = services::todos::create(&state, group.id.clone(), "A".to_string(), None, Some(2), None, None).unwrap();
+    let b = services::todos::create(&state, group.id.clone(), "B".to_string(), None, Some(2), None, None).unwrap();
+
+    let list = services::todos::list(&state, Some(group.id.clone())).unwrap();
+    assert_eq!(list[0].id, a.id, "default order keeps creation order");
+
+    services::todos::set_pinned(&state, b.id.clone(), true).unwrap();
+
+    let grouped = services::todos::list(&state, Some(group.id.clone())).unwrap();
+    assert_eq!(grouped[0].id, b.id, "pinned todo leads the group view");
+    assert!(grouped[0].pinned);
+
+    let global = services::todos::list(&state, None).unwrap();
+    assert_eq!(global[0].id, b.id, "pinned todo also leads the global view");
+
+    services::todos::set_pinned(&state, b.id.clone(), false).unwrap();
+    let restored = services::todos::list(&state, Some(group.id.clone())).unwrap();
+    assert_eq!(restored[0].id, a.id, "unpin restores the original order");
+}

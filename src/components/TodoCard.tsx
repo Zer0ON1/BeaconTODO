@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Group, Todo } from "../types";
 import { PRIORITY_COLORS, PRIORITY_I18N, columnOf, isOverdue } from "../lib/visual";
 import { useAppStore } from "../store/appStore";
-import { PinIcon } from "./Icons";
+import { PinIcon, FloatIcon } from "./Icons";
 
 interface Props {
   todo: Todo;
@@ -13,7 +13,7 @@ interface Props {
 
 export default function TodoCard({ todo, group }: Props) {
   const { t } = useTranslation();
-  const { openEditor, openPin, setTodoStatus, setNodeCompleted, loadNodes, pinnedTodoIds } =
+  const { openEditor, openPin, setTodoStatus, setTodoPinned, setNodeCompleted, loadNodes, pinnedTodoIds } =
     useAppStore();
   const nodes = useAppStore((s) => s.nodesByTodo[todo.id]);
   const [expanded, setExpanded] = useState(false);
@@ -22,7 +22,7 @@ export default function TodoCard({ todo, group }: Props) {
   const done = nodes?.filter((n) => n.status === "completed").length ?? 0;
   const milestones = nodes?.filter((n) => n.isMilestone) ?? [];
   const msDone = milestones.filter((n) => n.status === "completed").length;
-  const pinned = pinnedTodoIds.includes(todo.id);
+  const inFloatWindow = pinnedTodoIds.includes(todo.id);
   const priorityColor = PRIORITY_COLORS[todo.priority as 0 | 1 | 2 | 3];
   const overdue = isOverdue(todo);
 
@@ -57,9 +57,14 @@ export default function TodoCard({ todo, group }: Props) {
             {group.name}
           </span>
         )}
-        {pinned && (
-          <span className="text-[11px]" style={{ color: "var(--accent)" }} title={t("todo.pinned")}>
+        {todo.pinned && (
+          <span className="shrink-0" style={{ color: "var(--accent)" }} title={t("todo.pinnedToTop")}>
             <PinIcon />
+          </span>
+        )}
+        {inFloatWindow && (
+          <span className="shrink-0" style={{ color: "var(--text-faint)" }} title={t("todo.inFloatWindow")}>
+            <FloatIcon />
           </span>
         )}
         {overdue && (
@@ -190,13 +195,25 @@ export default function TodoCard({ todo, group }: Props) {
         </button>
         <button
           className="flex items-center gap-0.5 transition-colors hover:text-amber-500"
+          title={t("todo.floatWindowHint")}
           onClick={(e) => {
             e.stopPropagation();
             void openPin([todo.id]);
           }}
         >
+          <FloatIcon />
+          {t("todo.floatWindow")}
+        </button>
+        <button
+          className="flex items-center transition-colors"
+          style={{ color: todo.pinned ? "var(--accent)" : "var(--text-faint)" }}
+          title={todo.pinned ? t("todo.unpinFromTop") : t("todo.pinToTop")}
+          onClick={(e) => {
+            e.stopPropagation();
+            void setTodoPinned(todo.id, !todo.pinned);
+          }}
+        >
           <PinIcon />
-          {t("todo.pinSingle")}
         </button>
         <span className="ml-auto">
           {t(

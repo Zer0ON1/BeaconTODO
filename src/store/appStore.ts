@@ -63,6 +63,7 @@ interface AppState {
   createTodo: (input: CreateTodoInput) => Promise<Todo | null>;
   updateTodo: (input: UpdateTodoInput) => Promise<void>;
   setTodoStatus: (id: string, status: string) => Promise<void>;
+  setTodoPinned: (id: string, pinned: boolean) => Promise<void>;
   deleteTodo: (id: string) => Promise<void>;
 
   loadNodes: (todoId: string) => Promise<void>;
@@ -290,6 +291,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   setTodoStatus: async (id, status) => {
     try {
       await api.todos.setStatus(id, status);
+      const todos = await api.todos.list();
+      set({ todos });
+    } catch (e) {
+      fail(set, e);
+    }
+  },
+
+  setTodoPinned: async (id, pinned) => {
+    try {
+      await api.todos.setPinned(id, pinned);
       const todos = await api.todos.list();
       set({ todos });
     } catch (e) {

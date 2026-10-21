@@ -44,8 +44,8 @@ pub fn import(state: &AppState, data: ExportData) -> Result<ImportSummary, AppEr
         }
         for todo in &data.todos {
             tx.execute(
-                "INSERT OR REPLACE INTO todos (id, group_id, title, description, priority, status, start_date, end_date, sort_order, completed_at, created_at, updated_at)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                "INSERT OR REPLACE INTO todos (id, group_id, title, description, priority, status, start_date, end_date, sort_order, completed_at, created_at, updated_at, pinned)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
                 rusqlite::params![
                     todo.id,
                     todo.group_id,
@@ -58,7 +58,8 @@ pub fn import(state: &AppState, data: ExportData) -> Result<ImportSummary, AppEr
                     todo.sort_order,
                     todo.completed_at,
                     todo.created_at,
-                    todo.updated_at
+                    todo.updated_at,
+                    i64::from(todo.pinned)
                 ],
             )?;
         }

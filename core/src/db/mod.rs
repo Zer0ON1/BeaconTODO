@@ -52,6 +52,14 @@ impl Database {
                     "INSERT INTO schema_migrations (version, applied_at) VALUES (2, ?1)",
                     [chrono::Utc::now().to_rfc3339()],
                 )?;
+                current = 2;
+            }
+            if current < 3 {
+                conn.execute_batch(include_str!("migrations/0003_todo_pinned.sql"))?;
+                conn.execute(
+                    "INSERT INTO schema_migrations (version, applied_at) VALUES (3, ?1)",
+                    [chrono::Utc::now().to_rfc3339()],
+                )?;
             }
             Ok(())
         })

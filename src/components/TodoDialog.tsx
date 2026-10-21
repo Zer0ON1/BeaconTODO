@@ -7,6 +7,7 @@ import { PRIORITY_COLORS, PRIORITY_I18N } from "../lib/visual";
 import TodoNodeList from "./TodoNodeList";
 import ConfirmDialog from "./ConfirmDialog";
 import GroupSelect from "./GroupSelect";
+import DatePicker from "./DatePicker";
 
 const PRIORITIES: Priority[] = [0, 1, 2, 3];
 const STATUSES: TodoStatus[] = ["notStarted", "inProgress", "completed", "blocked"];
@@ -261,27 +262,19 @@ export default function TodoDialog({ mode, todoId, onClose, compact, onSaved }: 
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="w-8 shrink-0 text-[11px]" style={{ color: "var(--text-muted)" }}>
-                {t("node.start")}
-              </span>
-              <input
-                type="date"
-                className="min-w-0 flex-1 rounded-lg border px-2 py-1 text-[11px]"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              <span className="w-8 shrink-0 text-[11px]" style={{ color: "var(--text-muted)" }}>
-                {t("node.end")}
-              </span>
-              <input
-                type="date"
-                className="min-w-0 flex-1 rounded-lg border px-2 py-1 text-[11px]"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
+            <div className="flex gap-2">
+              <div className="min-w-0 flex-1">
+                <span className="mb-1 block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                  {t("node.start")}
+                </span>
+                <DatePicker value={startDate} onChange={setStartDate} compact={compact} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="mb-1 block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                  {t("node.end")}
+                </span>
+                <DatePicker value={endDate} onChange={setEndDate} compact={compact} />
+              </div>
             </div>
 
             {ready ? (

@@ -12,6 +12,8 @@ export default function ListView() {
     .filter((todo) => todo.status !== "archived")
     .filter((todo) => (selectedGroupId ? todo.groupId === selectedGroupId : true))
     .sort((a, b) => {
+      // Pinned todos lead every view, then unfinished before completed.
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
       if (a.status === "completed" && b.status !== "completed") return 1;
       if (b.status === "completed" && a.status !== "completed") return -1;
       return a.sortOrder - b.sortOrder;

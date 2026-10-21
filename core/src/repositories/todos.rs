@@ -2,7 +2,7 @@ use super::super::error::AppError;
 use super::super::models::{now, CreateTodoInput, Todo, UpdateTodoInput};
 use rusqlite::{params, Connection};
 
-const COLUMNS: &str = "id, group_id, title, description, priority, status, start_date, end_date, sort_order, completed_at, created_at, updated_at";
+const COLUMNS: &str = "id, group_id, title, description, priority, status, start_date, end_date, sort_order, completed_at, created_at, updated_at, pinned";
 
 fn row_to_todo(row: &rusqlite::Row<'_>) -> rusqlite::Result<Todo> {
     Ok(Todo {
@@ -18,12 +18,13 @@ fn row_to_todo(row: &rusqlite::Row<'_>) -> rusqlite::Result<Todo> {
         completed_at: row.get(9)?,
         created_at: row.get(10)?,
         updated_at: row.get(11)?,
+        pinned: row.get(12)?,
     })
 }
 
 pub fn list_all(conn: &Connection) -> Result<Vec<Todo>, AppError> {
     let mut stmt = conn.prepare(&format!(
-        "SELECT {COLUMNS} FROM todos WHERE status != 'archived' ORDER BY sort_order, created_at"
+        "SELECT {COLUMNS} FROM todos WHERE status != 'archived' ORDER BY pinned DESC, sort_order, created_at"
     ))?;
     let rows = stmt.query_map([], row_to_todo)?;
     Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
@@ -31,7 +32,7 @@ pub fn list_all(conn: &Connection) -> Result<Vec<Todo>, AppError> {
 
 pub fn list_everything(conn: &Connection) -> Result<Vec<Todo>, AppError> {
     let mut stmt = conn.prepare(&format!(
-        "SELECT {COLUMNS} FROM todos ORDER BY sort_order, created_at"
+        "SELECT {COLUMNS} FROM todos ORDER BY pinned DESC, sort_order, created_at"
     ))?;
     let rows = stmt.query_map([], row_to_todo)?;
     Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
@@ -47,7 +48,7 @@ pub fn reassign_group(conn: &Connection, from_group: &str, to_group: &str) -> Re
 
 pub fn list_by_group(conn: &Connection, group_id: &str) -> Result<Vec<Todo>, AppError> {
     let mut stmt = conn.prepare(&format!(
-        "SELECT {COLUMNS} FROM todos WHERE group_id = ?1 AND status != 'archived' ORDER BY sort_order, created_at"
+        "SELECT {COLUMNS} FROM todos WHERE group_id = ?1 AND status != 'archived' ORDER BY pinned DESC, sort_order, created_at"
     ))?;
     let rows = stmt.query_map([group_id], row_to_todo)?;
     Ok(rows.collect::<rusqlite::Result<Vec<_>>>()?)
@@ -152,4 +153,16 @@ pub fn reorder(conn: &mut Connection, ids: &[String]) -> Result<(), AppError> {
     }
     tx.commit()?;
     Ok(())
+}
+
+/// Toggles the "pinned to top" flag. Ordering is handled by the list queries.
+pub fn set_pinned(conn: &Connection, id: &str, pinned: bool) -> Result<Todo, AppError> {
+    let affected = conn.execute(
+        "UPDATE todos SET pinned = ?1, updated_at = ?2 WHERE id = ?3",
+        params![pinned, now(), id],
+    )?;
+    if affected == 0 {
+        return Err(AppError::NotFound(format!("todo {id} not found")));
+    }
+    get(conn, id)?.ok_or_else(|| AppError::Internal("todo vanished after pin change".to_string()))
 }

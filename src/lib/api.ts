@@ -34,6 +34,8 @@ export const api = {
     list: (groupId?: string) => call<Todo[]>("todos_list", { groupId }),
     create: (input: CreateTodoInput) => call<Todo>("todos_create", { ...input }),
     update: (input: UpdateTodoInput) => call<Todo>("todos_update", { input }),
+    setPinned: (id: string, pinned: boolean) =>
+      call<Todo>("todos_set_pinned", { id, pinned }),
     setStatus: (id: string, status: string) =>
       call<Todo>("todos_set_status", { id, status }),
     remove: (id: string) => call<void>("todos_delete", { id }),

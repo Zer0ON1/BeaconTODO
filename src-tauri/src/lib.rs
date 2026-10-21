@@ -51,6 +51,7 @@ pub fn run() {    tauri::Builder::default()
             commands::todos::todos_delete,
             commands::todos::todos_reorder,
             commands::todos::todos_set_status,
+            commands::todos::todos_set_pinned,
             commands::nodes::nodes_list,
             commands::nodes::nodes_list_all,
             commands::nodes::nodes_create,

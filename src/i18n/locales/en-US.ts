@@ -25,6 +25,7 @@ export default {
     complete: "Complete",
     done: "Done",
     all: "All",
+    clear: "Clear",
     today: "Today",
     untitled: "Untitled",
     loading: "Loading…",
@@ -87,6 +88,15 @@ export default {
     deleteTitle: "Delete todo",
     deleteMessage: "\"{{title}}\" and all its nodes will be deleted permanently, and it will be removed from any pin window. This cannot be undone.",
     milestoneProgress: "Milestones {{done}}/{{total}}",
+    floatWindow: "Float",
+    floatWindowHint: "Keep it in a floating desktop window",
+    pinToTop: "Pin to top",
+    unpinFromTop: "Unpin",
+    pinnedToTop: "Pinned to top of the list",
+    inFloatWindow: "In a float window",
+  },
+  date: {
+    pick: "Pick a date",
   },
   node: {
     title: "Nodes",

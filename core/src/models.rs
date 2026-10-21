@@ -52,6 +52,8 @@ pub struct Todo {
     pub start_date: Option<String>,
     pub end_date: Option<String>,
     pub sort_order: i64,
+    /// Pinned todos sort above the rest within every list/group view.
+    pub pinned: bool,
     pub completed_at: Option<String>,
     pub created_at: String,
     pub updated_at: String,

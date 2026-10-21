@@ -25,6 +25,7 @@ export default {
     complete: "完成",
     done: "已完成",
     all: "全部",
+    clear: "清除",
     today: "今天",
     untitled: "未命名",
     loading: "加载中…",
@@ -87,6 +88,15 @@ export default {
     deleteTitle: "删除待办",
     deleteMessage: "「{{title}}」及其所有节点将被永久删除，且会从置顶窗口中移除。此操作不可撤销。",
     milestoneProgress: "里程碑 {{done}}/{{total}}",
+    floatWindow: "悬浮窗",
+    floatWindowHint: "钉在桌面浮窗中，随时勾选",
+    pinToTop: "置顶",
+    unpinFromTop: "取消置顶",
+    pinnedToTop: "已置顶（排在列表最前）",
+    inFloatWindow: "在悬浮窗中",
+  },
+  date: {
+    pick: "选择日期",
   },
   node: {
     title: "节点",

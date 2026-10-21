@@ -118,3 +118,8 @@ pub fn delete(state: &AppState, id: String) -> Result<Vec<String>, AppError> {
 pub fn reorder(state: &AppState, ids: Vec<String>) -> Result<(), AppError> {
     state.db.with(|conn| repo::reorder(conn, &ids))
 }
+
+/// Pin/unpin a todo so it sorts above the rest, in every group view.
+pub fn set_pinned(state: &AppState, id: String, pinned: bool) -> Result<Todo, AppError> {
+    state.db.with(|conn| repo::set_pinned(conn, &id, pinned))
+}

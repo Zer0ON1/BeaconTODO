@@ -39,6 +39,16 @@ pub fn todos_set_status(
     beacon_core::services::todos::set_status(&state, id, status)
 }
 
+/// Pin a todo to the top of every list view (ordering only).
+#[tauri::command]
+pub fn todos_set_pinned(
+    state: tauri::State<'_, AppState>,
+    id: String,
+    pinned: bool,
+) -> Result<Todo, beacon_core::error::AppError> {
+    beacon_core::services::todos::set_pinned(&state, id, pinned)
+}
+
 /// Delete a todo. Idempotent — deleting an already-removed todo returns Ok.
 /// Returns the pin windows that lost their last member so their webviews can
 /// be closed here.
