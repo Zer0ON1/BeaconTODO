@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../store/appStore";
 import { GROUP_COLORS } from "../lib/visual";
+import DeleteGroupDialog from "./DeleteGroupDialog";
+import type { Group } from "../types";
 
 export default function Sidebar() {
   const { t } = useTranslation();
@@ -17,8 +19,15 @@ export default function Sidebar() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [color, setColor] = useState(GROUP_COLORS[0]);
+  const [deleteTarget, setDeleteTarget] = useState<Group | null>(null);
 
   const visibleTodos = todos.filter((todo) => todo.status !== "archived");
+
+  // Prefer the default group as the migration destination, then any other group.
+  const migrateTarget = (excludeId: string) =>
+    groups.find((group) => group.id !== excludeId && group.id === "inbox") ??
+    groups.find((group) => group.id !== excludeId) ??
+    null;
 
   const submitCreate = async () => {
     const trimmed = name.trim();
@@ -142,30 +151,9 @@ export default function Sidebar() {
                 </span>
               </button>
               <button
-                className="hidden hover:text-red-500 group-hover:block" style={{ color: "var(--text-faint)" }}
+                className="hidden text-[11px] hover:text-red-500 group-hover:block" style={{ color: "var(--text-faint)" }}
                 title={t("common.delete")}
-                onClick={() => {
-                  if (groupTodos.length === 0) {
-                    void deleteGroup({ id: group.id, mode: "cascade" });
-                    return;
-                  }
-                  const mode = window.confirm(
-                    `${t("group.deleteConfirmTitle")}: ${group.name}\n\n[OK] ${t("group.deleteMigrate")}\n[Cancel] ${t("group.deleteCascade")}`
-                  )
-                    ? "migrate"
-                    : "cascade";
-                  const others = groups.filter((g) => g.id !== group.id);
-                  const target = others[0]?.id;
-                  if (mode === "migrate" && !target) {
-                    window.alert(t("group.deleteCascade"));
-                    return;
-                  }
-                  void deleteGroup({
-                    id: group.id,
-                    mode,
-                    targetGroupId: mode === "migrate" ? target : undefined,
-                  });
-                }}
+                onClick={() => setDeleteTarget(group)}
               >
                 ✕
               </button>
@@ -177,6 +165,28 @@ export default function Sidebar() {
       <div className="border-t px-3 py-2 text-[11px]" style={{ borderColor: "var(--border)", color: "var(--text-faint)" }}>
         {t("group.todoCount", { count: visibleTodos.length })}
       </div>
+
+      {deleteTarget && (
+        <DeleteGroupDialog
+          group={deleteTarget}
+          todoCount={visibleTodos.filter((todo) => todo.groupId === deleteTarget.id).length}
+          migrateTarget={migrateTarget(deleteTarget.id)}
+          onCancel={() => setDeleteTarget(null)}
+          onMigrate={() => {
+            const target = migrateTarget(deleteTarget.id);
+            void deleteGroup(
+              target
+                ? { id: deleteTarget.id, mode: "migrate", targetGroupId: target.id }
+                : { id: deleteTarget.id, mode: "cascade" }
+            );
+            setDeleteTarget(null);
+          }}
+          onCascade={() => {
+            void deleteGroup({ id: deleteTarget.id, mode: "cascade" });
+            setDeleteTarget(null);
+          }}
+        />
+      )}
     </aside>
   );
 }
