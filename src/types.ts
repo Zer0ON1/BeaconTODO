@@ -65,6 +65,17 @@ export interface HealthStatus {
   schemaVersion: number;
 }
 
+/** Runtime environment reported by the shell for the About panel. */
+export interface AppInfo {
+  version: string;
+  os: string;
+  arch: string;
+  debug: boolean;
+  dataDir: string;
+  dbPath: string;
+  logDir: string;
+}
+
 export interface GroupWithStats extends Group {
   todoCount: number;
   doneCount: number;

@@ -1,3 +1,4 @@
+pub mod about;
 pub mod export;
 pub mod groups;
 pub mod health;

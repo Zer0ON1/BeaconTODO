@@ -1,5 +1,6 @@
 import { call } from "./tauri";
 import type {
+  AppInfo,
   CreateNodeInput,
   CreateTodoInput,
   DeleteGroupInput,
@@ -17,6 +18,7 @@ import type {
 
 export const api = {
   health: () => call<HealthStatus>("health_check"),
+  appInfo: () => call<AppInfo>("app_info"),
 
   groups: {
     list: (includeArchived = false) =>

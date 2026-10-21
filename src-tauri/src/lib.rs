@@ -11,6 +11,7 @@ pub fn run() {    tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::new().build())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             // Resolve the data dir (shell concern), then hand a plain path to
             // the domain core.
@@ -38,6 +39,7 @@ pub fn run() {    tauri::Builder::default()
         })
         .invoke_handler(tauri::generate_handler![
             commands::health::health_check,
+            commands::about::app_info,
             commands::groups::groups_list,
             commands::groups::groups_create,
             commands::groups::groups_update,

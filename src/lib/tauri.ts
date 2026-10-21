@@ -38,6 +38,7 @@ function toApiError(e: unknown): ApiError {
  */
 const READ_ONLY = new Set([
   "health_check",
+  "app_info",
   "groups_list",
   "todos_list",
   "nodes_list",

@@ -17,6 +17,7 @@
     "core:webview:allow-set-webview-size",
     "global-shortcut:default",
     "dialog:default",
-    "log:default"
+    "log:default",
+    "opener:default"
   ]
 }
