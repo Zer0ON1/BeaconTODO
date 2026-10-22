@@ -1,6 +1,6 @@
 [package]
 name = "beacon-core"
-version = "0.1.0"
+version = "0.1.2"
 description = "BeaconTODO domain core — models, storage, business rules (no UI shell)"
 edition = "2021"
 
